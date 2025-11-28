@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import {
+  Animated,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameType } from '../lib/types';
 import { RootStackParamList } from '../navigation/types';
@@ -29,6 +33,22 @@ const difficulties = Array.from({ length: 10 }, (_, i) => i + 1);
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<Navigation>();
   const { selectedGame, difficulty, setGame, setDifficulty } = useSettingsStore();
+  const slotRef = useRef<ScrollView | null>(null);
+  const { width } = useWindowDimensions();
+  const cardWidth = 70;
+  const cardSpacing = 12;
+  const slotSize = cardWidth + cardSpacing;
+  const inset = useMemo(() => Math.max(0, (width - slotSize) / 2), [width, slotSize]);
+
+  useEffect(() => {
+    slotRef.current?.scrollTo({ x: (difficulty - 1) * slotSize, animated: true });
+  }, [difficulty, slotSize]);
+
+  const onSlotEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(e.nativeEvent.contentOffset.x / slotSize);
+    const next = Math.min(9, Math.max(0, index)) + 1;
+    setDifficulty(next);
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -58,23 +78,46 @@ export const HomeScreen: React.FC = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>難易度</Text>
-          <View style={styles.difficultyRow}>
-            {difficulties.map((level) => {
-              const active = level === difficulty;
-              return (
-                <Pressable
-                  key={level}
-                  onPress={() => setDifficulty(level)}
-                  style={[styles.levelChip, active && styles.levelChipActive]}
-                >
-                  <Text style={[styles.levelText, active && styles.levelTextActive]}>{level}</Text>
-                </Pressable>
-              );
-            })}
+          <View style={styles.slotShell}>
+            <View style={styles.slotWindow}>
+              <Animated.ScrollView
+                ref={slotRef}
+                horizontal
+                snapToInterval={slotSize}
+                snapToAlignment="center"
+                decelerationRate="fast"
+                showsHorizontalScrollIndicator={false}
+                onMomentumScrollEnd={onSlotEnd}
+                contentContainerStyle={{
+                  alignItems: 'center',
+                  paddingHorizontal: inset + cardSpacing / 2,
+                }}
+              >
+                {difficulties.map((level) => {
+                  const active = level === difficulty;
+                  return (
+                    <Pressable
+                      key={level}
+                      onPress={() => setDifficulty(level)}
+                      style={[
+                        styles.diffCard,
+                        active && styles.diffCardActive,
+                        { width: cardWidth, marginHorizontal: cardSpacing / 2 },
+                      ]}
+                    >
+                      <Text style={[styles.slotNumber, active && styles.slotNumberActive]}>{level}</Text>
+                      <Text style={[styles.slotLabel, active && styles.slotLabelActive]}>LV{level}</Text>
+                    </Pressable>
+                  );
+                })}
+              </Animated.ScrollView>
+              <View
+                pointerEvents="none"
+                style={[styles.slotHighlight, { width: cardWidth + cardSpacing }]}
+              />
+            </View>
           </View>
-          <Text style={styles.caption}>
-            LV1 は運任せ、LV10 は CPU が最適化思考を行う設定です。
-          </Text>
+          <Text style={styles.caption}>現在: LV{difficulty} / LV1 は運任せ、LV10 は CPU が最適化思考。</Text>
         </View>
 
         <View style={styles.actions}>
@@ -155,29 +198,57 @@ const styles = StyleSheet.create({
     marginTop: 6,
     lineHeight: 18,
   },
-  difficultyRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  levelChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+  slotShell: {
+    marginTop: 6,
+    paddingVertical: 6,
+    borderRadius: 12,
+    backgroundColor: '#0f172a',
     borderWidth: 1,
     borderColor: '#23304f',
-    marginRight: 8,
-    marginBottom: 8,
   },
-  levelChipActive: {
-    backgroundColor: '#1d3a7a',
+  slotWindow: {
+    height: 120,
+    overflow: 'hidden',
+    position: 'relative',
+    alignItems: 'center',
+  },
+  diffCard: {
+    height: 90,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+    backgroundColor: '#101828',
+    borderWidth: 1,
+    borderColor: '#23304f',
+  },
+  diffCardActive: {
+    backgroundColor: '#1f3163',
     borderColor: '#4f8ef7',
   },
-  levelText: {
-    color: '#cdd2e0',
-    fontWeight: '600',
-  },
-  levelTextActive: {
+  slotNumber: {
+    fontSize: 42,
+    fontWeight: '800',
     color: '#f7f7ff',
+  },
+  slotNumberActive: {
+    color: '#fefefe',
+  },
+  slotLabel: {
+    color: '#9aa5ce',
+    marginTop: 4,
+  },
+  slotLabelActive: {
+    color: '#dfe5ff',
+  },
+  slotHighlight: {
+    position: 'absolute',
+    top: 6,
+    bottom: 6,
+    width: 100,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#4f8ef7',
+    alignSelf: 'center',
   },
   caption: {
     color: '#9aa5ce',

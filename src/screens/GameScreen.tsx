@@ -1,20 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CardView from '../components/CardView';
 import { simulateGame } from '../games';
 import { GameSimulation } from '../lib/types';
 import { RootStackParamList } from '../navigation/types';
 import { useHistoryStore } from '../state/useHistoryStore';
+import SevensGame from './SevensGame';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList, 'Game'>;
 type Route = RouteProp<RootStackParamList, 'Game'>;
@@ -32,6 +27,10 @@ export const GameScreen: React.FC = () => {
   const route = useRoute<Route>();
   const { addEntry } = useHistoryStore();
   const { game, difficulty } = route.params;
+
+  if (game === 'sevens') {
+    return <SevensGame difficulty={difficulty} />;
+  }
 
   const [simulation, setSimulation] = useState<GameSimulation>(() => simulateGame(game, difficulty));
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now());

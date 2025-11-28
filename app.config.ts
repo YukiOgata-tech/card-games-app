@@ -7,10 +7,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "rn-card-games",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/icon.png",
+  icon: "./assets/images/cg-icon.png",
   userInterfaceStyle: "automatic",
   splash: {
-    image: "./assets/icon.png",
+    image: "./assets/images/cg-icon.png",
     resizeMode: "contain",
     backgroundColor: "#ffffff"
   },
@@ -22,7 +22,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: "com.yukiogata.cardgames",
     adaptiveIcon: {
-      foregroundImage: "./assets/adaptive-icon.png",
+      foregroundImage: "./assets/images/cg-icon.png",
       backgroundColor: "#FFFFFF"
     }
   },

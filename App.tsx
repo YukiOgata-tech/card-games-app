@@ -12,6 +12,7 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import ResultScreen from './src/screens/ResultScreen';
 import { RootStackParamList } from './src/navigation/types';
 import { useHistoryStore } from './src/state/useHistoryStore';
+import './global.css';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

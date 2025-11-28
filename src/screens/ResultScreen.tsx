@@ -1,7 +1,8 @@
 import React from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CardView from '../components/CardView';
 import { RootStackParamList } from '../navigation/types';
@@ -37,8 +38,8 @@ export const ResultScreen: React.FC = () => {
         <View style={styles.row}>
           <Text style={styles.heading}>CPU 手札</Text>
           <View style={styles.cards}>
-            {summary.cpuHand.map((card, index) => (
-              <CardView key={card.id} card={card} hidden={index % 2 === 0} mini />
+            {summary.cpuHand.map((card) => (
+              <CardView key={card.id} card={card} mini />
             ))}
           </View>
         </View>

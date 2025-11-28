@@ -1,10 +1,75 @@
 import React from 'react';
-import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 
-import { Card } from '../lib/types';
+import { Card, Rank, Suit } from '../lib/types';
 
-const CARD_FACE = require('../../assets/cards/card_face_base.png');
-const CARD_BACK = require('../../assets/cards/card_back.png');
+const CARD_BACK = require('../../assets/cards/hayeah/back.png');
+
+const faceMap: Record<Suit, Partial<Record<Rank, any>>> = {
+  hearts: {
+    A: require('../../assets/cards/hayeah/ace_of_hearts.png'),
+    '2': require('../../assets/cards/hayeah/2_of_hearts.png'),
+    '3': require('../../assets/cards/hayeah/3_of_hearts.png'),
+    '4': require('../../assets/cards/hayeah/4_of_hearts.png'),
+    '5': require('../../assets/cards/hayeah/5_of_hearts.png'),
+    '6': require('../../assets/cards/hayeah/6_of_hearts.png'),
+    '7': require('../../assets/cards/hayeah/7_of_hearts.png'),
+    '8': require('../../assets/cards/hayeah/8_of_hearts.png'),
+    '9': require('../../assets/cards/hayeah/9_of_hearts.png'),
+    '10': require('../../assets/cards/hayeah/10_of_hearts.png'),
+    J: require('../../assets/cards/hayeah/jack_of_hearts.png'),
+    Q: require('../../assets/cards/hayeah/queen_of_hearts.png'),
+    K: require('../../assets/cards/hayeah/king_of_hearts.png'),
+  },
+  diamonds: {
+    A: require('../../assets/cards/hayeah/ace_of_diamonds.png'),
+    '2': require('../../assets/cards/hayeah/2_of_diamonds.png'),
+    '3': require('../../assets/cards/hayeah/3_of_diamonds.png'),
+    '4': require('../../assets/cards/hayeah/4_of_diamonds.png'),
+    '5': require('../../assets/cards/hayeah/5_of_diamonds.png'),
+    '6': require('../../assets/cards/hayeah/6_of_diamonds.png'),
+    '7': require('../../assets/cards/hayeah/7_of_diamonds.png'),
+    '8': require('../../assets/cards/hayeah/8_of_diamonds.png'),
+    '9': require('../../assets/cards/hayeah/9_of_diamonds.png'),
+    '10': require('../../assets/cards/hayeah/10_of_diamonds.png'),
+    J: require('../../assets/cards/hayeah/jack_of_diamonds.png'),
+    Q: require('../../assets/cards/hayeah/queen_of_diamonds.png'),
+    K: require('../../assets/cards/hayeah/king_of_diamonds.png'),
+  },
+  clubs: {
+    A: require('../../assets/cards/hayeah/ace_of_clubs.png'),
+    '2': require('../../assets/cards/hayeah/2_of_clubs.png'),
+    '3': require('../../assets/cards/hayeah/3_of_clubs.png'),
+    '4': require('../../assets/cards/hayeah/4_of_clubs.png'),
+    '5': require('../../assets/cards/hayeah/5_of_clubs.png'),
+    '6': require('../../assets/cards/hayeah/6_of_clubs.png'),
+    '7': require('../../assets/cards/hayeah/7_of_clubs.png'),
+    '8': require('../../assets/cards/hayeah/8_of_clubs.png'),
+    '9': require('../../assets/cards/hayeah/9_of_clubs.png'),
+    '10': require('../../assets/cards/hayeah/10_of_clubs.png'),
+    J: require('../../assets/cards/hayeah/jack_of_clubs.png'),
+    Q: require('../../assets/cards/hayeah/queen_of_clubs.png'),
+    K: require('../../assets/cards/hayeah/king_of_clubs.png'),
+  },
+  spades: {
+    A: require('../../assets/cards/hayeah/ace_of_spades.png'),
+    '2': require('../../assets/cards/hayeah/2_of_spades.png'),
+    '3': require('../../assets/cards/hayeah/3_of_spades.png'),
+    '4': require('../../assets/cards/hayeah/4_of_spades.png'),
+    '5': require('../../assets/cards/hayeah/5_of_spades.png'),
+    '6': require('../../assets/cards/hayeah/6_of_spades.png'),
+    '7': require('../../assets/cards/hayeah/7_of_spades.png'),
+    '8': require('../../assets/cards/hayeah/8_of_spades.png'),
+    '9': require('../../assets/cards/hayeah/9_of_spades.png'),
+    '10': require('../../assets/cards/hayeah/10_of_spades.png'),
+    J: require('../../assets/cards/hayeah/jack_of_spades.png'),
+    Q: require('../../assets/cards/hayeah/queen_of_spades.png'),
+    K: require('../../assets/cards/hayeah/king_of_spades.png'),
+  },
+  joker: {
+    JOKER: require('../../assets/cards/hayeah/red_joker.png'),
+  },
+};
 
 interface Props {
   card: Card;
@@ -12,59 +77,25 @@ interface Props {
   mini?: boolean;
 }
 
-const suitLabel: Record<Card['suit'], string> = {
-  hearts: 'H',
-  diamonds: 'D',
-  clubs: 'C',
-  spades: 'S',
-  joker: 'JK',
-};
-
-const suitColor: Record<Card['suit'], string> = {
-  hearts: '#d7263d',
-  diamonds: '#d7263d',
-  clubs: '#111',
-  spades: '#111',
-  joker: '#1b6eff',
-};
-
 export const CardView: React.FC<Props> = ({ card, hidden = false, mini = false }) => {
-  const size = mini ? { width: 50, height: 75 } : { width: 90, height: 130 };
+  const size = mini ? { width: 42, height: 62 } : { width: 90, height: 130 };
   if (hidden) {
     return <Image source={CARD_BACK} style={[styles.card, size]} resizeMode="cover" />;
   }
-  return (
-    <ImageBackground source={CARD_FACE} style={[styles.card, size]} imageStyle={styles.face} resizeMode="cover">
-      <View style={styles.overlay}>
-        <Text style={[styles.rank, { color: suitColor[card.suit] }]}>{card.rank}</Text>
-        <Text style={[styles.suit, { color: suitColor[card.suit] }]}>{suitLabel[card.suit]}</Text>
-      </View>
-    </ImageBackground>
-  );
+  const source = faceMap[card.suit]?.[card.rank] ?? CARD_BACK;
+
+  return <Image source={source} style={[styles.card, size]} resizeMode="contain" />;
 };
 
 const styles = StyleSheet.create({
   card: {
-    marginRight: 6,
-    marginBottom: 6,
+    marginRight: 4,
+    marginBottom: 4,
     borderRadius: 8,
     overflow: 'hidden',
-  },
-  face: {
-    borderRadius: 8,
-  },
-  overlay: {
-    flex: 1,
-    padding: 8,
-    justifyContent: 'space-between',
-  },
-  rank: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  suit: {
-    fontSize: 14,
-    fontWeight: '600',
+    borderWidth: 1,
+    borderColor: '#d5d5d5',
+    backgroundColor: '#fff',
   },
 });
 
